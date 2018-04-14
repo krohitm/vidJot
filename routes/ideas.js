@@ -1,6 +1,6 @@
-const express = require('express')
+const express = require('express');
 const mongoose = require('mongoose');
-const router = express.Router()
+const router = express.Router();
 
 //load idea model
 require('../models/Idea');
