@@ -2,6 +2,7 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
 //initialize application
 const app = express();
@@ -26,6 +27,10 @@ app.engine('handlebars', exphbs({
 ));
 app.set('view engine', 'handlebars');
 
+//Body-parser middleware
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+
 //Index Route
 app.get('/', (req, res) => {
   const title = 'Welcome1';
@@ -40,8 +45,34 @@ app.get('/about', (req, res) => {
 });
 
 //add ideas form
-app.get('/ideas/add', (req, res) =>{
+app.get('/ideas/add', (req, res) => {
   res.render('ideas/add');
+})
+
+//process form
+app.post('/ideas', (req, res) => {
+  let errors = [];
+
+  //check if title is missing
+  if (!req.body.title){
+    errors.push({text: 'Please add a title'});
+  }
+  //check if details are missing
+  if (!req.body.details){
+    errors.push({text: 'Please add details'});
+  }
+
+  //re-render add ideas view if any error
+  if (errors.length > 0){
+    res.render('ideas/add', {
+      errors: errors,
+      title: req.body.title,
+      details: req.body.details
+    });
+  }
+  else{
+    res.send('passed');
+  }
 })
 
 //port for app to listen
