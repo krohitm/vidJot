@@ -54,24 +54,33 @@ app.post('/ideas', (req, res) => {
   let errors = [];
 
   //check if title is missing
-  if (!req.body.title){
-    errors.push({text: 'Please add a title'});
+  if (!req.body.title) {
+    errors.push({ text: 'Please add a title' });
   }
   //check if details are missing
-  if (!req.body.details){
-    errors.push({text: 'Please add details'});
+  if (!req.body.details) {
+    errors.push({ text: 'Please add details' });
   }
 
   //re-render add ideas view if any error
-  if (errors.length > 0){
+  if (errors.length > 0) {
     res.render('ideas/add', {
       errors: errors,
       title: req.body.title,
       details: req.body.details
     });
   }
-  else{
-    res.send('passed');
+  else {
+    //save new idea to DB
+    const newUser = {
+      title: req.body.title,
+      details: req.body.details
+    }
+    new Idea(newUser)
+      .save()
+      .then(idea => {
+        res.redirect('/ideas');
+      })
   }
 })
 
