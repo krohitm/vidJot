@@ -128,6 +128,16 @@ app.put('/ideas/:id', (req, res) => {
   })
 })
 
+//delete idea
+app.delete('/ideas/:id', (req, res) => {
+  Idea.remove({
+    _id: req.params.id
+  })
+  .then(() =>{
+    res.redirect('/ideas');
+  })
+})
+
 //port for app to listen
 const port = 5000;
 
