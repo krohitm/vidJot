@@ -45,7 +45,7 @@ app.use(methodOverride('_method'))
 
 //expression session middleware
 app.use(session({
-  secret: 'Videjot@123',
+  secret: 'Vidjot@123',
   resave: false,
   saveUninitialized: true
 }))
@@ -62,7 +62,7 @@ app.use(function(req, res, next) {
 
 //Index Route
 app.get('/', (req, res) => {
-  const title = 'Welcome1';
+  const title = 'Welcome';
   res.render('index', {
     title: title
   });
