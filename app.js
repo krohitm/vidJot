@@ -18,11 +18,13 @@ const users = require('./routes/users')
 
 //passport config
 require('./config/passport')(passport);
+//db config
+const db = require('./config/database');
 
 //Map global promise
 mongoose.Promise = global.Promise;
 //Connect to mongoose
-mongoose.connect('mongodb://localhost/vidjot-dev', {
+mongoose.connect(db.mongoURI, {
 })
   //callback for the promise
   .then(() => console.log('MongoDB connected!'))
@@ -86,8 +88,8 @@ app.get('/about', (req, res) => {
 app.use('/ideas', ideas)
 app.use('/users', users)
 
-//port for app to listen
-const port = 5000;
+//port for app to listen on heroku or local
+const port = process.env.PORT || 5000;
 
 //set app to listen, and set a callback
 app.listen(port, () => {
