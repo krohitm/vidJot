@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const flash = require('connect-flash');
 const session = require('express-session');
-
+const passport = require('passport');
 
 //initialize application
 const app = express();
@@ -15,6 +15,9 @@ const app = express();
 //import routers
 const ideas = require('./routes/ideas')
 const users = require('./routes/users')
+
+//passport config
+require('./config/passport')(passport);
 
 //Map global promise
 mongoose.Promise = global.Promise;
@@ -50,12 +53,17 @@ app.use(session({
   saveUninitialized: true
 }))
 
+//intialize passport and use persistent login sessions
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(flash());
 
 //global variables
 app.use(function(req, res, next) {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
+  res.locals.user = req.user || null;
   res.locals.error = req.flash('error');
   next();
 })
