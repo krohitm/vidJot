@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
 //load helper for auth
-const {ensureAuthenticated} = require('../helpers/auth');
+const { ensureAuthenticated } = require('../helpers/auth');
 
 //load idea model
 require('../models/Idea');
@@ -10,11 +10,11 @@ const Idea = mongoose.model('ideas');
 
 //idea index page
 router.get('/', ensureAuthenticated, (req, res) => {
-  Idea.find({})
+  Idea.find({ user: req.user.id })
     .sort({ date: 'desc' })
     .then(ideas => {
       res.render('ideas/index', {
-        ideas: ideas 
+        ideas: ideas
       });
     })
 })
@@ -29,11 +29,16 @@ router.get('/edit/:id', ensureAuthenticated, (req, res) => {
   Idea.findOne({
     _id: req.params.id
   })
-  .then(idea => {
-    res.render('ideas/edit', {
-      idea: idea
-    });
-  })
+    .then(idea => {
+      if (idea.user != req.user.id) {
+        req.flash('error_msg', 'Access not allowed');
+        res.redirect('/ideas');
+      } else {
+        res.render('ideas/edit', {
+          idea: idea
+        });
+      }
+    })
 })
 
 //process form
@@ -61,7 +66,8 @@ router.post('/', ensureAuthenticated, (req, res) => {
     //save new idea to DB
     const newUser = {
       title: req.body.title,
-      details: req.body.details
+      details: req.body.details,
+      user: req.user.id
     }
     new Idea(newUser)
       .save()
@@ -77,28 +83,28 @@ router.put('/:id', ensureAuthenticated, (req, res) => {
   Idea.findOne({
     _id: req.params.id
   })
-  .then(idea => {
-    //update idea
-    idea.title = req.body.title;
-    idea.details = req.body.details;
-
-    idea.save()
     .then(idea => {
-      req.flash('success_msg', 'Idea updated successfully');
-      res.redirect('/ideas');
+      //update idea
+      idea.title = req.body.title;
+      idea.details = req.body.details;
+
+      idea.save()
+        .then(idea => {
+          req.flash('success_msg', 'Idea updated successfully');
+          res.redirect('/ideas');
+        })
     })
-  })
 })
 
 //delete idea
-router.delete('/:id',ensureAuthenticated, (req, res) => {
+router.delete('/:id', ensureAuthenticated, (req, res) => {
   Idea.remove({
     _id: req.params.id
   })
-  .then(() =>{
-    req.flash('success_msg', 'idea successfully deleted');
-    res.redirect('/ideas');
-  })
+    .then(() => {
+      req.flash('success_msg', 'idea successfully deleted');
+      res.redirect('/ideas');
+    })
 })
 
 module.exports = router;
