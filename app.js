@@ -18,13 +18,20 @@ const users = require('./routes/users')
 
 //passport config
 require('./config/passport')(passport);
-//db config
-const db = require('./config/database');
 
+//setting access to config vars
+if (process.env.NODE_ENV === 'production') {
+  mongoURI = process.env.mongoURI;
+}
+else {
+  //db config
+  const db = require('./config/database');
+  mongoURI = db.mongoURI;
+}
 //Map global promise
 mongoose.Promise = global.Promise;
 //Connect to mongoose
-mongoose.connect(db.mongoURI, {
+mongoose.connect(mongoURI, {
 })
   //callback for the promise
   .then(() => console.log('MongoDB connected!'))
@@ -62,7 +69,7 @@ app.use(passport.session());
 app.use(flash());
 
 //global variables
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   res.locals.user = req.user || null;
